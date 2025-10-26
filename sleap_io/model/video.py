@@ -271,16 +271,21 @@ class Video:
         Returns:
             `True` if the file exists and is accessible, `False` otherwise.
         """
-        if isinstance(self.filename, list):
+        if self.backend is not None:
+            filename = self.backend.filename
+        else:
+            filename = self.filename
+
+        if isinstance(filename, list):
             if check_all:
-                for f in self.filename:
+                for f in filename:
                     if not is_file_accessible(f):
                         return False
                 return True
             else:
-                return is_file_accessible(self.filename[0])
+                return is_file_accessible(filename[0])
 
-        file_is_accessible = is_file_accessible(self.filename)
+        file_is_accessible = is_file_accessible(filename)
         if not file_is_accessible:
             return False
 
@@ -296,7 +301,7 @@ class Video:
             ):
                 has_dataset = dataset in self.backend._open_reader
             else:
-                with h5py.File(self.filename, "r") as f:
+                with h5py.File(filename, "r") as f:
                     has_dataset = dataset in f
             return has_dataset
 
